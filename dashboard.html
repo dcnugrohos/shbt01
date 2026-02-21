@@ -1,0 +1,401 @@
+<!DOCTYPE html>
+<html lang="id" class="light">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Dashboard - TemenBoss</title>
+  
+  <!-- Tailwind CSS -->
+  <script src="https://cdn.tailwindcss.com"></script>
+  
+  <!-- Font Awesome -->
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css">
+  
+  <!-- Google Fonts -->
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+  
+  <script>
+    tailwind.config = {
+      darkMode: 'class',
+      theme: {
+        extend: {
+          fontFamily: {
+            sans: ['Inter', 'sans-serif'],
+          },
+          colors: {
+            primary: {
+              50: '#eff6ff',
+              100: '#dbeafe',
+              200: '#bfdbfe',
+              300: '#93c5fd',
+              400: '#60a5fa',
+              500: '#3b82f6',
+              600: '#2563eb',
+              700: '#1d4ed8',
+              800: '#1e40af',
+              900: '#1e3a8a',
+            }
+          }
+        }
+      }
+    }
+  </script>
+  
+  <style>
+    ::-webkit-scrollbar {
+      width: 6px;
+      height: 6px;
+    }
+    ::-webkit-scrollbar-track {
+      background: transparent;
+    }
+    ::-webkit-scrollbar-thumb {
+      background: #cbd5e1;
+      border-radius: 3px;
+    }
+    .dark ::-webkit-scrollbar-thumb {
+      background: #475569;
+    }
+    
+    .card-hover {
+      transition: transform 0.2s, box-shadow 0.2s;
+    }
+    .card-hover:hover {
+      transform: translateY(-2px);
+      box-shadow: 0 10px 25px -5px rgba(0, 0, 0, 0.1), 0 8px 10px -6px rgba(0, 0, 0, 0.1);
+    }
+    
+    @keyframes pulse-dot {
+      0%, 100% { opacity: 1; }
+      50% { opacity: 0.5; }
+    }
+    .pulse-dot {
+      animation: pulse-dot 2s infinite;
+    }
+    
+    @keyframes slideIn {
+      from { opacity: 0; transform: translateY(10px); }
+      to { opacity: 1; transform: translateY(0); }
+    }
+    .animate-slide-in {
+      animation: slideIn 0.3s ease-out;
+    }
+  </style>
+</head>
+<body class="bg-gray-50 dark:bg-gray-900 text-gray-900 dark:text-gray-100 font-sans antialiased">
+  
+  <div class="p-6 space-y-6">
+    
+    <!-- Welcome Section -->
+    <div class="flex items-center justify-between animate-slide-in">
+      <div>
+        <h1 class="text-2xl font-bold mb-1">Selamat Datang di TemenBoss</h1>
+        <p class="text-gray-500 dark:text-gray-400">Sistem Operasi Bisnis Terpadu</p>
+      </div>
+      <div class="flex items-center gap-2 text-sm text-gray-500">
+        <i class="far fa-calendar"></i>
+        <span id="current-date">-</span>
+      </div>
+    </div>
+    
+    <!-- Stats Cards -->
+    <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4 animate-slide-in" style="animation-delay: 0.1s;">
+      <div class="card-hover bg-white dark:bg-gray-800 rounded-xl p-5 border border-gray-200 dark:border-gray-700">
+        <div class="flex items-center justify-between mb-3">
+          <div class="w-12 h-12 bg-blue-100 dark:bg-blue-900/30 rounded-xl flex items-center justify-center">
+            <i class="fas fa-cash-register text-blue-600 text-xl"></i>
+          </div>
+          <span class="text-xs font-medium text-green-600 bg-green-100 dark:bg-green-900/30 px-2 py-1 rounded-full">+12%</span>
+        </div>
+        <h3 class="text-2xl font-bold">Rp 12.5M</h3>
+        <p class="text-sm text-gray-500 dark:text-gray-400">Penjualan Bulan Ini</p>
+      </div>
+      
+      <div class="card-hover bg-white dark:bg-gray-800 rounded-xl p-5 border border-gray-200 dark:border-gray-700">
+        <div class="flex items-center justify-between mb-3">
+          <div class="w-12 h-12 bg-green-100 dark:bg-green-900/30 rounded-xl flex items-center justify-center">
+            <i class="fas fa-shopping-cart text-green-600 text-xl"></i>
+          </div>
+          <span class="text-xs font-medium text-green-600 bg-green-100 dark:bg-green-900/30 px-2 py-1 rounded-full">+8%</span>
+        </div>
+        <h3 class="text-2xl font-bold">1,247</h3>
+        <p class="text-sm text-gray-500 dark:text-gray-400">Total Transaksi</p>
+      </div>
+      
+      <div class="card-hover bg-white dark:bg-gray-800 rounded-xl p-5 border border-gray-200 dark:border-gray-700">
+        <div class="flex items-center justify-between mb-3">
+          <div class="w-12 h-12 bg-purple-100 dark:bg-purple-900/30 rounded-xl flex items-center justify-center">
+            <i class="fas fa-users text-purple-600 text-xl"></i>
+          </div>
+          <span class="text-xs font-medium text-green-600 bg-green-100 dark:bg-green-900/30 px-2 py-1 rounded-full">+24</span>
+        </div>
+        <h3 class="text-2xl font-bold">856</h3>
+        <p class="text-sm text-gray-500 dark:text-gray-400">Pelanggan Baru</p>
+      </div>
+      
+      <div class="card-hover bg-white dark:bg-gray-800 rounded-xl p-5 border border-gray-200 dark:border-gray-700">
+        <div class="flex items-center justify-between mb-3">
+          <div class="w-12 h-12 bg-orange-100 dark:bg-orange-900/30 rounded-xl flex items-center justify-center">
+            <i class="fas fa-box text-orange-600 text-xl"></i>
+          </div>
+          <span class="text-xs font-medium text-red-600 bg-red-100 dark:bg-red-900/30 px-2 py-1 rounded-full">-3%</span>
+        </div>
+        <h3 class="text-2xl font-bold">42</h3>
+        <p class="text-sm text-gray-500 dark:text-gray-400">Stok Menipis</p>
+      </div>
+    </div>
+    
+    <!-- Main Content Grid -->
+    <div class="grid grid-cols-1 lg:grid-cols-3 gap-6">
+      
+      <!-- Active Addons -->
+      <div class="lg:col-span-2 space-y-4 animate-slide-in" style="animation-delay: 0.2s;">
+        <div class="flex items-center justify-between">
+          <h2 class="text-lg font-semibold">Add-on Aktif</h2>
+          <button onclick="parent.app.navigateTo('settings', {tab: 'addons'})" class="text-sm text-primary-600 hover:underline">
+            Kelola Add-on
+          </button>
+        </div>
+        
+        <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+          <!-- POS Card -->
+          <div class="card-hover bg-white dark:bg-gray-800 rounded-xl p-5 border border-gray-200 dark:border-gray-700 cursor-pointer" onclick="parent.app.navigateTo('addon', {addonId: 'pos-retail', addonName: 'POS Retail'})">
+            <div class="flex items-start gap-4">
+              <div class="w-14 h-14 bg-gradient-to-br from-blue-500 to-blue-700 rounded-xl flex items-center justify-center shadow-lg">
+                <i class="fas fa-cash-register text-white text-2xl"></i>
+              </div>
+              <div class="flex-1">
+                <div class="flex items-center gap-2 mb-1">
+                  <h3 class="font-semibold">POS Retail</h3>
+                  <span class="w-2 h-2 bg-green-500 rounded-full pulse-dot"></span>
+                </div>
+                <p class="text-sm text-gray-500 dark:text-gray-400 mb-2">Sistem kasir lengkap dengan manajemen stok</p>
+                <div class="flex items-center gap-3 text-xs text-gray-500">
+                  <span><i class="fas fa-code-branch mr-1"></i>v2.1.0</span>
+                  <span><i class="fas fa-user mr-1"></i>3 Kasir Aktif</span>
+                </div>
+              </div>
+            </div>
+          </div>
+          
+          <!-- Accounting Card -->
+          <div class="card-hover bg-white dark:bg-gray-800 rounded-xl p-5 border border-gray-200 dark:border-gray-700 cursor-pointer" onclick="parent.app.navigateTo('addon', {addonId: 'accounting', addonName: 'Akuntansi'})">
+            <div class="flex items-start gap-4">
+              <div class="w-14 h-14 bg-gradient-to-br from-green-500 to-green-700 rounded-xl flex items-center justify-center shadow-lg">
+                <i class="fas fa-calculator text-white text-2xl"></i>
+              </div>
+              <div class="flex-1">
+                <div class="flex items-center gap-2 mb-1">
+                  <h3 class="font-semibold">Akuntansi</h3>
+                  <span class="w-2 h-2 bg-green-500 rounded-full pulse-dot"></span>
+                </div>
+                <p class="text-sm text-gray-500 dark:text-gray-400 mb-2">Jurnal, ledger, dan laporan keuangan</p>
+                <div class="flex items-center gap-3 text-xs text-gray-500">
+                  <span><i class="fas fa-code-branch mr-1"></i>v1.5.2</span>
+                  <span><i class="fas fa-file-invoice mr-1"></i>156 Jurnal</span>
+                </div>
+              </div>
+            </div>
+          </div>
+          
+          <!-- HR Payroll Card -->
+          <div class="card-hover bg-white dark:bg-gray-800 rounded-xl p-5 border border-gray-200 dark:border-gray-700 cursor-pointer" onclick="parent.app.navigateTo('addon', {addonId: 'hr-payroll', addonName: 'HR & Payroll'})">
+            <div class="flex items-start gap-4">
+              <div class="w-14 h-14 bg-gradient-to-br from-purple-500 to-purple-700 rounded-xl flex items-center justify-center shadow-lg">
+                <i class="fas fa-users text-white text-2xl"></i>
+              </div>
+              <div class="flex-1">
+                <div class="flex items-center gap-2 mb-1">
+                  <h3 class="font-semibold">HR & Payroll</h3>
+                  <span class="w-2 h-2 bg-green-500 rounded-full pulse-dot"></span>
+                </div>
+                <p class="text-sm text-gray-500 dark:text-gray-400 mb-2">Karyawan, absensi, dan penggajian</p>
+                <div class="flex items-center gap-3 text-xs text-gray-500">
+                  <span><i class="fas fa-code-branch mr-1"></i>v1.8.0</span>
+                  <span><i class="fas fa-user-tie mr-1"></i>24 Karyawan</span>
+                </div>
+              </div>
+            </div>
+          </div>
+          
+          <!-- Add More Card -->
+          <div class="card-hover bg-gray-50 dark:bg-gray-700/50 rounded-xl p-5 border border-dashed border-gray-300 dark:border-gray-600 cursor-pointer flex items-center justify-center" onclick="parent.app.navigateTo('settings', {tab: 'addons'})">
+            <div class="text-center">
+              <div class="w-14 h-14 bg-gray-200 dark:bg-gray-600 rounded-xl flex items-center justify-center mx-auto mb-2">
+                <i class="fas fa-plus text-gray-500 text-2xl"></i>
+              </div>
+              <p class="text-sm font-medium text-gray-600 dark:text-gray-400">Tambah Add-on</p>
+            </div>
+          </div>
+        </div>
+      </div>
+      
+      <!-- Sidebar Widgets -->
+      <div class="space-y-4 animate-slide-in" style="animation-delay: 0.3s;">
+        
+        <!-- Quick Actions -->
+        <div class="bg-white dark:bg-gray-800 rounded-xl p-5 border border-gray-200 dark:border-gray-700">
+          <h3 class="font-semibold mb-4">Aksi Cepat</h3>
+          <div class="space-y-2">
+            <button onclick="parent.app.navigateTo('addon', {addonId: 'pos-retail', addonName: 'POS Retail'})" class="w-full flex items-center gap-3 px-4 py-3 rounded-lg bg-primary-50 dark:bg-primary-900/20 text-primary-700 dark:text-primary-400 hover:bg-primary-100 dark:hover:bg-primary-900/30 transition-colors text-left">
+              <i class="fas fa-plus-circle"></i>
+              <span>Transaksi Baru</span>
+            </button>
+            <button onclick="parent.app.showAddWebInstanceModal()" class="w-full flex items-center gap-3 px-4 py-3 rounded-lg bg-gray-50 dark:bg-gray-700/50 hover:bg-gray-100 dark:hover:bg-gray-700 transition-colors text-left">
+              <i class="fas fa-globe"></i>
+              <span>Tambah Web Instance</span>
+            </button>
+            <button onclick="parent.app.navigateTo('settings')" class="w-full flex items-center gap-3 px-4 py-3 rounded-lg bg-gray-50 dark:bg-gray-700/50 hover:bg-gray-100 dark:hover:bg-gray-700 transition-colors text-left">
+              <i class="fas fa-cog"></i>
+              <span>Pengaturan</span>
+            </button>
+          </div>
+        </div>
+        
+        <!-- System Status -->
+        <div class="bg-white dark:bg-gray-800 rounded-xl p-5 border border-gray-200 dark:border-gray-700">
+          <h3 class="font-semibold mb-4">Status Sistem</h3>
+          <div class="space-y-3">
+            <div class="flex items-center justify-between">
+              <div class="flex items-center gap-2">
+                <span class="w-2 h-2 bg-green-500 rounded-full"></span>
+                <span class="text-sm">Server Express</span>
+              </div>
+              <span class="text-xs text-gray-500">:3000</span>
+            </div>
+            <div class="flex items-center justify-between">
+              <div class="flex items-center gap-2">
+                <span class="w-2 h-2 bg-green-500 rounded-full"></span>
+                <span class="text-sm">Socket.IO</span>
+              </div>
+              <span class="text-xs text-gray-500">:3001</span>
+            </div>
+            <div class="flex items-center justify-between">
+              <div class="flex items-center gap-2">
+                <span class="w-2 h-2 bg-gray-400 rounded-full"></span>
+                <span class="text-sm">Wi-Fi Server</span>
+              </div>
+              <span class="text-xs text-gray-500">Off</span>
+            </div>
+            <div class="flex items-center justify-between">
+              <div class="flex items-center gap-2">
+                <span class="w-2 h-2 bg-green-500 rounded-full"></span>
+                <span class="text-sm">Database</span>
+              </div>
+              <span class="text-xs text-gray-500">IndexedDB</span>
+            </div>
+          </div>
+        </div>
+        
+        <!-- Recent Activity -->
+        <div class="bg-white dark:bg-gray-800 rounded-xl p-5 border border-gray-200 dark:border-gray-700">
+          <h3 class="font-semibold mb-4">Aktivitas Terbaru</h3>
+          <div class="space-y-3">
+            <div class="flex items-start gap-3">
+              <div class="w-8 h-8 bg-blue-100 dark:bg-blue-900/30 rounded-full flex items-center justify-center flex-shrink-0">
+                <i class="fas fa-shopping-cart text-blue-600 text-xs"></i>
+              </div>
+              <div>
+                <p class="text-sm">Transaksi baru #1234</p>
+                <p class="text-xs text-gray-500">2 menit yang lalu</p>
+              </div>
+            </div>
+            <div class="flex items-start gap-3">
+              <div class="w-8 h-8 bg-green-100 dark:bg-green-900/30 rounded-full flex items-center justify-center flex-shrink-0">
+                <i class="fas fa-user-plus text-green-600 text-xs"></i>
+              </div>
+              <div>
+                <p class="text-sm">Pelanggan baru terdaftar</p>
+                <p class="text-xs text-gray-500">15 menit yang lalu</p>
+              </div>
+            </div>
+            <div class="flex items-start gap-3">
+              <div class="w-8 h-8 bg-purple-100 dark:bg-purple-900/30 rounded-full flex items-center justify-center flex-shrink-0">
+                <i class="fas fa-box text-purple-600 text-xs"></i>
+              </div>
+              <div>
+                <p class="text-sm">Stok masuk: 50 pcs</p>
+                <p class="text-xs text-gray-500">1 jam yang lalu</p>
+              </div>
+            </div>
+          </div>
+        </div>
+        
+      </div>
+    </div>
+    
+    <!-- Web Instances Section -->
+    <div class="animate-slide-in" style="animation-delay: 0.4s;">
+      <div class="flex items-center justify-between mb-4">
+        <h2 class="text-lg font-semibold">Web Instances</h2>
+        <button onclick="parent.app.showAddWebInstanceModal()" class="text-sm text-primary-600 hover:underline">
+          + Tambah Baru
+        </button>
+      </div>
+      
+      <div id="web-instances-container" class="grid grid-cols-2 md:grid-cols-4 lg:grid-cols-6 gap-4">
+        <!-- Populated by JS -->
+      </div>
+    </div>
+    
+  </div>
+  
+  <script>
+    // Update current date
+    function updateDate() {
+      const options = { weekday: 'long', year: 'numeric', month: 'long', day: 'numeric' };
+      document.getElementById('current-date').textContent = new Date().toLocaleDateString('id-ID', options);
+    }
+    updateDate();
+    
+    // Listen for theme changes from parent
+    window.addEventListener('message', (event) => {
+      if (event.data.type === 'THEME_CHANGE') {
+        const html = document.documentElement;
+        if (event.data.theme === 'dark') {
+          html.classList.add('dark');
+        } else {
+          html.classList.remove('dark');
+        }
+      }
+    });
+    
+    // Request current theme
+    if (parent !== window) {
+      parent.postMessage({ type: 'REQUEST_THEME' }, '*');
+    }
+    
+    // Load web instances from parent
+    function loadWebInstances() {
+      const container = document.getElementById('web-instances-container');
+      
+      // This would normally fetch from parent's app.state.webInstances
+      // For now, show placeholder
+      container.innerHTML = `
+        <div class="card-hover bg-white dark:bg-gray-800 rounded-xl p-4 border border-gray-200 dark:border-gray-700 cursor-pointer text-center" onclick="parent.app.showAddWebInstanceModal()">
+          <div class="w-12 h-12 bg-green-100 dark:bg-green-900/30 rounded-xl flex items-center justify-center mx-auto mb-2">
+            <i class="fab fa-whatsapp text-green-600 text-xl"></i>
+          </div>
+          <p class="text-sm font-medium">WhatsApp 1</p>
+          <p class="text-xs text-gray-500">web.whatsapp.com</p>
+        </div>
+        <div class="card-hover bg-white dark:bg-gray-800 rounded-xl p-4 border border-gray-200 dark:border-gray-700 cursor-pointer text-center" onclick="parent.app.showAddWebInstanceModal()">
+          <div class="w-12 h-12 bg-blue-100 dark:bg-blue-900/30 rounded-xl flex items-center justify-center mx-auto mb-2">
+            <i class="fab fa-facebook text-blue-600 text-xl"></i>
+          </div>
+          <p class="text-sm font-medium">Facebook</p>
+          <p class="text-xs text-gray-500">facebook.com</p>
+        </div>
+        <div class="card-hover bg-gray-50 dark:bg-gray-700/50 rounded-xl p-4 border border-dashed border-gray-300 dark:border-gray-600 cursor-pointer text-center" onclick="parent.app.showAddWebInstanceModal()">
+          <div class="w-12 h-12 bg-gray-200 dark:bg-gray-600 rounded-xl flex items-center justify-center mx-auto mb-2">
+            <i class="fas fa-plus text-gray-500 text-xl"></i>
+          </div>
+          <p class="text-sm font-medium text-gray-600 dark:text-gray-400">Tambah</p>
+        </div>
+      `;
+    }
+    loadWebInstances();
+  </script>
+  
+</body>
+</html>

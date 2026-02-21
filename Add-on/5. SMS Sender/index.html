@@ -1,0 +1,518 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>SMS Sender Pro - Multi Device</title>
+    
+    <script src="https://cdn.tailwindcss.com"></script>
+    <script src="https://unpkg.com/dexie@3.2.4/dist/dexie.js"></script>
+    <script src="https://unpkg.com/axios/dist/axios.min.js"></script>
+    <script src="https://cdn.sheetjs.com/xlsx-latest/package/dist/xlsx.full.min.js"></script>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css">
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+
+    <script>
+        tailwind.config = {
+            theme: {
+                extend: {
+                    fontFamily: { sans: ['Inter', 'sans-serif'] },
+                    colors: {
+                        brand: { 50:'#eff6ff', 100:'#dbeafe', 500:'#3b82f6', 600:'#2563eb', 700:'#1d4ed8' },
+                    }
+                }
+            }
+        }
+    </script>
+    <style>
+        body { background-color: #f8fafc; font-family: 'Inter', sans-serif; }
+        ::-webkit-scrollbar { width: 6px; }
+        ::-webkit-scrollbar-thumb { background: #cbd5e1; border-radius: 3px; }
+        .var-chip { cursor: pointer; user-select: none; transition: all 0.2s; }
+        .var-chip:hover { transform: translateY(-1px); box-shadow: 0 2px 4px rgba(0,0,0,0.1); }
+    </style>
+</head>
+<body class="h-screen flex overflow-hidden text-gray-800">
+
+    <aside class="w-64 bg-white border-r border-gray-200 flex flex-col z-20 shadow-lg">
+        <div class="h-16 flex items-center gap-3 px-6 border-b border-gray-100 bg-gray-50">
+            <div class="w-8 h-8 bg-brand-600 rounded-lg flex items-center justify-center text-white shadow">
+                <i class="fas fa-paper-plane"></i>
+            </div>
+            <div>
+                <h1 class="font-bold text-lg text-gray-700 leading-none">SMS Sender</h1>
+                <span class="text-[10px] text-gray-400 font-medium">Multi-Device v4.0</span>
+            </div>
+        </div>
+
+        <nav class="flex-1 p-4 space-y-2 overflow-y-auto">
+            <button onclick="app.nav('compose')" id="btn-compose" class="nav-item w-full flex items-center gap-3 px-4 py-3 rounded-xl text-sm font-medium bg-brand-50 text-brand-700 transition-all">
+                <i class="fas fa-pen-nib w-5 text-center"></i> Kirim Pesan
+            </button>
+            <button onclick="app.nav('settings')" id="btn-settings" class="nav-item w-full flex items-center gap-3 px-4 py-3 rounded-xl text-sm font-medium text-gray-600 hover:bg-gray-50 transition-all">
+                <i class="fas fa-network-wired w-5 text-center"></i> Device & Koneksi
+            </button>
+            <button onclick="app.nav('history')" id="btn-history" class="nav-item w-full flex items-center gap-3 px-4 py-3 rounded-xl text-sm font-medium text-gray-600 hover:bg-gray-50 transition-all">
+                <i class="fas fa-history w-5 text-center"></i> Riwayat
+            </button>
+        </nav>
+
+        <div class="p-4 bg-gray-50 border-t border-gray-200">
+             <a href="https://messages.google.com/web/conversations" target="_blank" class="flex items-center gap-3 px-4 py-3 rounded-xl bg-white border border-gray-200 shadow-sm hover:shadow-md transition-all group">
+                <i class="fab fa-google w-5 text-center text-blue-500 group-hover:scale-110 transition-transform"></i>
+                <div class="flex-1">
+                    <div class="text-xs font-bold text-gray-700">Google Messages</div>
+                    <span class="text-[10px] text-gray-400">Open Web App</span>
+                </div>
+            </a>
+        </div>
+    </aside>
+
+    <main class="flex-1 flex flex-col h-full relative overflow-hidden bg-gray-50">
+        
+        <header class="h-16 bg-white border-b border-gray-200 flex items-center justify-between px-8 shadow-sm z-10">
+            <h2 id="page-title" class="font-bold text-xl text-gray-800">Kirim Pesan</h2>
+        </header>
+
+        <div class="flex-1 overflow-auto p-8 relative">
+            
+            <div id="view-settings" class="view-section hidden max-w-5xl mx-auto space-y-6 animate-fade-in">
+                <div class="grid grid-cols-1 lg:grid-cols-2 gap-6">
+                    
+                    <div class="bg-white p-6 rounded-xl shadow-sm border border-gray-200">
+                        <div class="flex justify-between items-center mb-4">
+                            <h3 class="font-bold text-gray-800 flex items-center gap-2">
+                                <i class="fas fa-wifi text-green-600"></i> Local WiFi Devices
+                            </h3>
+                            <span class="text-xs bg-green-100 text-green-700 px-2 py-1 rounded-full font-bold">WebSocket</span>
+                        </div>
+                        
+                        <div class="flex gap-2 mb-6">
+                            <input type="text" id="inp-local-ip" placeholder="IP HP (Misal: 192.168.1.5)" class="flex-1 px-3 py-2 border rounded-lg text-sm font-mono focus:ring-2 ring-brand-200 outline-none">
+                            <button onclick="app.connectLocal()" class="px-4 py-2 bg-gray-800 hover:bg-black text-white rounded-lg text-sm font-bold shadow-md transition-colors">
+                                <i class="fas fa-plus"></i> Connect
+                            </button>
+                        </div>
+
+                        <div id="list-local-devices" class="space-y-3">
+                            <p class="text-center text-gray-400 text-sm py-4">Belum ada device lokal terhubung.</p>
+                        </div>
+                    </div>
+
+                    <div class="bg-white p-6 rounded-xl shadow-sm border border-gray-200">
+                        <div class="flex justify-between items-center mb-4">
+                            <h3 class="font-bold text-gray-800 flex items-center gap-2">
+                                <i class="fas fa-cloud text-purple-600"></i> Cloud API Devices
+                            </h3>
+                            <span class="text-xs bg-purple-100 text-purple-700 px-2 py-1 rounded-full font-bold">Internet</span>
+                        </div>
+
+                        <div class="space-y-3 mb-6 p-4 bg-gray-50 rounded-lg border border-gray-100">
+                            <div>
+                                <label class="text-xs font-bold text-gray-500 uppercase">Server URL</label>
+                                <input type="text" id="cfg-url" value="https://smssender.chatwa.id" class="w-full mt-1 px-2 py-1 border rounded text-xs bg-white">
+                            </div>
+                            <div>
+                                <label class="text-xs font-bold text-gray-500 uppercase">API Key / Token</label>
+                                <div class="flex gap-2">
+                                    <input type="password" id="cfg-key" placeholder="Paste API Key..." class="flex-1 mt-1 px-2 py-1 border rounded text-xs bg-white">
+                                    <button onclick="app.syncCloud()" class="mt-1 px-3 py-1 bg-purple-600 text-white text-xs rounded hover:bg-purple-700">Sync</button>
+                                </div>
+                            </div>
+                            
+                            <div class="flex items-center gap-2 pt-2 border-t border-gray-200">
+                                <input type="checkbox" id="cfg-proxy" class="rounded text-purple-600">
+                                <label for="cfg-proxy" class="text-xs text-gray-600 cursor-pointer">Gunakan <b>CORS Proxy</b> (Centang jika gagal connect)</label>
+                            </div>
+                        </div>
+
+                        <div id="list-cloud-devices" class="space-y-3 max-h-80 overflow-y-auto">
+                            <p class="text-center text-gray-400 text-sm py-4">Masukkan API Key & Sync.</p>
+                        </div>
+                        
+                        <div id="cloud-error-box" class="hidden mt-2 p-2 bg-red-100 border border-red-200 rounded text-xs text-red-700 font-mono break-all"></div>
+                    </div>
+
+                </div>
+            </div>
+
+            <div id="view-compose" class="view-section max-w-4xl mx-auto space-y-6 animate-fade-in">
+                
+                <div class="bg-white p-4 rounded-xl shadow-sm border border-gray-200 flex items-center gap-4 border-l-4 border-brand-500">
+                    <div class="w-10 h-10 rounded-full bg-blue-50 flex items-center justify-center text-blue-600 shrink-0">
+                        <i class="fas fa-sim-card"></i>
+                    </div>
+                    <div class="flex-1">
+                        <label class="block text-xs font-semibold text-gray-500 uppercase">Kirim Melalui Device</label>
+                        <select id="select-active-device" class="w-full mt-1 bg-transparent font-bold text-gray-800 outline-none cursor-pointer">
+                            <option value="">-- Pilih Device Aktif --</option>
+                        </select>
+                    </div>
+                    <div id="device-status-indicator" class="px-3 py-1 bg-gray-100 text-gray-400 rounded-full text-xs font-bold">
+                        Pilih Device
+                    </div>
+                </div>
+
+                <div class="grid grid-cols-2 gap-4">
+                    <div onclick="app.setInputMode('manual')" id="tab-manual" class="cursor-pointer bg-white p-4 rounded-xl border-2 border-brand-500 shadow-sm transition-all">
+                        <h4 class="font-bold text-gray-800"><i class="fas fa-keyboard mr-2 text-brand-500"></i> Manual Input</h4>
+                    </div>
+                    <div onclick="app.setInputMode('excel')" id="tab-excel" class="cursor-pointer bg-white p-4 rounded-xl border-2 border-transparent hover:border-gray-200 shadow-sm transition-all">
+                        <h4 class="font-bold text-gray-800"><i class="fas fa-file-excel mr-2 text-green-500"></i> Upload Excel</h4>
+                    </div>
+                </div>
+
+                <div class="bg-white p-6 rounded-xl shadow-sm border border-gray-200">
+                    <div id="area-manual">
+                        <label class="block text-sm font-medium text-gray-700 mb-2">Daftar Nomor Tujuan</label>
+                        <textarea id="inp-manual-numbers" rows="3" class="w-full p-2 border rounded-lg text-sm font-mono focus:ring-2 ring-brand-100 outline-none" placeholder="0812xxx (Satu nomor per baris)"></textarea>
+                    </div>
+
+                    <div id="area-excel" class="hidden space-y-4">
+                        <div class="border-2 border-dashed border-gray-300 rounded-lg p-6 text-center relative hover:bg-gray-50 transition-colors">
+                            <input type="file" onchange="app.handleExcel(this)" accept=".xlsx,.xls,.csv" class="absolute inset-0 w-full h-full opacity-0 cursor-pointer">
+                            <i class="fas fa-cloud-upload-alt text-2xl text-gray-400 mb-2"></i>
+                            <p class="text-sm font-medium text-gray-600" id="excel-name">Drop Excel file here</p>
+                        </div>
+                        <div id="excel-vars" class="hidden p-3 bg-gray-50 rounded-lg border border-gray-200">
+                            <div class="flex items-center gap-3 mb-2">
+                                <label class="text-xs font-bold uppercase text-gray-500">Kolom Nomor HP:</label>
+                                <select id="excel-col-phone" class="text-sm border rounded px-2 py-1"></select>
+                            </div>
+                            <div class="flex flex-wrap gap-2" id="excel-chips"></div>
+                        </div>
+                    </div>
+
+                    <div class="mt-6 pt-4 border-t border-gray-100">
+                        <label class="block text-sm font-medium text-gray-700 mb-2">Isi Pesan</label>
+                        <textarea id="inp-message" rows="5" class="w-full p-2 border rounded-lg text-sm focus:ring-2 ring-brand-100 outline-none" placeholder="Tulis pesan..."></textarea>
+                        
+                        <div class="flex justify-between items-center mt-4">
+                            <span class="text-xs text-gray-400 bg-gray-100 px-2 py-1 rounded" id="char-count">0 Karakter</span>
+                            <button onclick="app.sendBroadcast()" id="btn-send" class="px-6 py-2 bg-brand-600 hover:bg-brand-700 text-white rounded-lg font-bold shadow-lg shadow-brand-500/30 transition-all flex items-center gap-2">
+                                <i class="fas fa-paper-plane"></i> Kirim Pesan
+                            </button>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <div id="view-history" class="view-section hidden animate-fade-in">
+                <div class="bg-white rounded-xl shadow-sm border border-gray-200 overflow-hidden">
+                    <table class="w-full text-sm text-left">
+                        <thead class="bg-gray-50 text-gray-500 font-medium border-b border-gray-100">
+                            <tr>
+                                <th class="px-6 py-4">Waktu</th>
+                                <th class="px-6 py-4">Tujuan</th>
+                                <th class="px-6 py-4">Pesan</th>
+                                <th class="px-6 py-4">Via Device</th>
+                                <th class="px-6 py-4">Status</th>
+                            </tr>
+                        </thead>
+                        <tbody id="history-list" class="divide-y divide-gray-100"></tbody>
+                    </table>
+                </div>
+            </div>
+        </div>
+    </main>
+
+    <div id="toast" class="fixed bottom-6 right-6 transform translate-y-24 opacity-0 transition-all duration-300 z-50">
+        <div class="bg-gray-900 text-white px-4 py-3 rounded-lg shadow-xl flex items-center gap-3">
+            <i id="toast-icon" class="fas fa-info-circle"></i>
+            <span id="toast-msg" class="text-sm font-medium">Notification</span>
+        </div>
+    </div>
+
+    <script>
+        // --- SOUNDS ---
+        const playSound = (type) => {
+            const ctx = new (window.AudioContext || window.webkitAudioContext)();
+            const osc = ctx.createOscillator();
+            const gain = ctx.createGain();
+            osc.connect(gain);
+            gain.connect(ctx.destination);
+            
+            if(type === 'connect') { // High pitch ting
+                osc.type = 'sine';
+                osc.frequency.setValueAtTime(500, ctx.currentTime);
+                osc.frequency.exponentialRampToValueAtTime(1000, ctx.currentTime + 0.1);
+                gain.gain.setValueAtTime(0.1, ctx.currentTime);
+                gain.gain.exponentialRampToValueAtTime(0.01, ctx.currentTime + 0.5);
+                osc.start(); osc.stop(ctx.currentTime + 0.5);
+            } else { // Low pitch down
+                osc.type = 'triangle';
+                osc.frequency.setValueAtTime(300, ctx.currentTime);
+                osc.frequency.linearRampToValueAtTime(100, ctx.currentTime + 0.3);
+                gain.gain.setValueAtTime(0.1, ctx.currentTime);
+                gain.gain.linearRampToValueAtTime(0.01, ctx.currentTime + 0.3);
+                osc.start(); osc.stop(ctx.currentTime + 0.3);
+            }
+        };
+
+        const db = new Dexie('TemenBoss_SMS_Final');
+        db.version(1).stores({ config: 'key, value', history: '++id, date, to, message, device, status' });
+
+        const app = {
+            localConnections: {},
+            cloudDevices: [],
+            inputMode: 'manual',
+            excelData: [],
+            excelHeaders: [],
+
+            init: async () => {
+                await app.loadConfig();
+                app.setupListeners();
+                app.nav('compose');
+            },
+
+            nav: (view) => {
+                document.querySelectorAll('.view-section').forEach(el => el.classList.add('hidden'));
+                document.getElementById(`view-${view}`).classList.remove('hidden');
+                document.querySelectorAll('.nav-item').forEach(el => { el.classList.remove('bg-brand-50', 'text-brand-700'); el.classList.add('text-gray-600'); });
+                document.getElementById(`btn-${view}`).classList.add('bg-brand-50', 'text-brand-700');
+                if(view === 'history') app.loadHistory();
+                if(view === 'compose' || view === 'settings') app.updateDeviceSelector();
+            },
+
+            loadConfig: async () => {
+                const url = await db.config.get('cloud_url');
+                const key = await db.config.get('cloud_key');
+                if(url) document.getElementById('cfg-url').value = url.value;
+                if(key) document.getElementById('cfg-key').value = key.value;
+            },
+
+            // --- LOCAL WIFI ---
+            connectLocal: () => {
+                const ip = document.getElementById('inp-local-ip').value.trim();
+                if(!ip) return app.toast('Masukkan IP Address!', 'error');
+                if(app.localConnections[ip]) return app.toast('IP ini sudah terhubung.', 'warning');
+
+                try {
+                    const ws = new WebSocket(`ws://${ip}:52351/`);
+                    ws.onopen = () => {
+                        ws.send(JSON.stringify({command: "query", data: { pcName: "TemenBoss" }}));
+                        app.localConnections[ip] = { ws, model: 'Connecting...', status: 'connected' };
+                        app.renderLocalDevices(); app.updateDeviceSelector();
+                        playSound('connect'); app.toast(`Terhubung ke ${ip}`, 'success');
+                        document.getElementById('inp-local-ip').value = '';
+                    };
+                    ws.onmessage = (e) => {
+                        const msg = JSON.parse(e.data);
+                        if(msg.type === 'query' && app.localConnections[ip]) {
+                            app.localConnections[ip].model = msg.data.deviceModel || "Android Device";
+                            app.renderLocalDevices(); app.updateDeviceSelector();
+                        }
+                    };
+                    ws.onclose = () => {
+                        if(app.localConnections[ip]) {
+                            delete app.localConnections[ip];
+                            app.renderLocalDevices(); app.updateDeviceSelector();
+                            playSound('disconnect'); app.toast(`Putus koneksi: ${ip}`, 'error');
+                        }
+                    };
+                } catch(e) { app.toast('Gagal koneksi WebSocket', 'error'); }
+            },
+
+            disconnectLocal: (ip) => { if(app.localConnections[ip]) app.localConnections[ip].ws.close(); },
+
+            renderLocalDevices: () => {
+                const container = document.getElementById('list-local-devices');
+                const ips = Object.keys(app.localConnections);
+                if(ips.length === 0) return container.innerHTML = '<p class="text-center text-gray-400 text-sm py-4">Belum ada device lokal terhubung.</p>';
+                container.innerHTML = '';
+                ips.forEach(ip => {
+                    const dev = app.localConnections[ip];
+                    container.innerHTML += `<div class="p-3 bg-white border border-green-200 rounded-lg shadow-sm flex justify-between items-center"><div class="flex items-center gap-3"><div class="w-2 h-2 rounded-full bg-green-500 animate-pulse"></div><div><div class="font-bold text-sm text-gray-800">${dev.model}</div><div class="text-xs text-gray-500 font-mono">${ip}</div></div></div><button onclick="app.disconnectLocal('${ip}')" class="text-red-500 hover:text-red-700 text-xs font-medium">Putus</button></div>`;
+                });
+            },
+
+            // --- CLOUD API (FIXED CORS & ERROR HANDLING) ---
+            syncCloud: async () => {
+                const urlRaw = document.getElementById('cfg-url').value.replace(/\/$/, "");
+                const key = document.getElementById('cfg-key').value;
+                const useProxy = document.getElementById('cfg-proxy').checked;
+                const errorBox = document.getElementById('cloud-error-box');
+
+                if(!urlRaw || !key) return app.toast('API Key wajib diisi', 'error');
+                
+                await db.config.put({key: 'cloud_url', value: urlRaw});
+                await db.config.put({key: 'cloud_key', value: key});
+
+                app.toast('Sedang mengambil data device...', 'info');
+                errorBox.classList.add('hidden');
+
+                // PROXY LOGIC
+                // Jika dicentang, gunakan corsproxy.io
+                const baseUrl = useProxy ? `https://corsproxy.io/?${encodeURIComponent(urlRaw)}` : urlRaw;
+
+                try {
+                    // Try fetch devices
+                    const res = await axios.get(`${baseUrl}/api/device`, { 
+                        headers: { 'Authorization': `Bearer ${key}` }
+                    });
+
+                    // Flexible parsing (sesuai main.js smssender)
+                    const devices = res.data.data || res.data.results || res.data || [];
+
+                    app.cloudDevices = devices.map(d => ({
+                        id: d.id || d.deviceID,
+                        name: d.name || d.device_name || 'Cloud Device',
+                        number: d.number || d.sender || '-'
+                    }));
+
+                    app.renderCloudDevices();
+                    app.updateDeviceSelector();
+                    app.toast(`Berhasil! ${app.cloudDevices.length} device ditemukan.`, 'success');
+
+                } catch (e) {
+                    console.error(e);
+                    let errorMsg = e.message;
+                    if(e.response) {
+                        errorMsg = `Status: ${e.response.status} (${e.response.statusText})`;
+                        if(e.response.status === 401) errorMsg += " - API Key Salah / Unauthorized";
+                    } else if (e.request) {
+                        errorMsg = "Tidak ada respon server (CORS Error / Network Error). Coba centang 'Gunakan CORS Proxy'.";
+                    }
+                    
+                    errorBox.innerText = errorMsg;
+                    errorBox.classList.remove('hidden');
+                    app.toast('Gagal sync cloud.', 'error');
+                }
+            },
+
+            renderCloudDevices: () => {
+                const container = document.getElementById('list-cloud-devices');
+                if(app.cloudDevices.length === 0) return container.innerHTML = '<p class="text-center text-gray-400 text-sm py-4">Tidak ada device cloud.</p>';
+                container.innerHTML = '';
+                app.cloudDevices.forEach(d => {
+                    container.innerHTML += `<div class="p-3 bg-white border border-purple-200 rounded-lg shadow-sm flex justify-between items-center"><div class="flex items-center gap-3"><div class="w-8 h-8 rounded bg-purple-100 text-purple-600 flex items-center justify-center text-xs"><i class="fas fa-cloud"></i></div><div><div class="font-bold text-sm text-gray-800">${d.name}</div><div class="text-xs text-gray-500 font-mono">${d.number}</div></div></div><span class="text-xs bg-green-100 text-green-700 px-2 py-0.5 rounded">Ready</span></div>`;
+                });
+            },
+
+            updateDeviceSelector: () => {
+                const sel = document.getElementById('select-active-device');
+                const oldVal = sel.value;
+                sel.innerHTML = '<option value="">-- Pilih Device Aktif --</option>';
+                
+                const localIPs = Object.keys(app.localConnections);
+                if(localIPs.length > 0) {
+                    const grp = document.createElement('optgroup'); grp.label = "WiFi Devices";
+                    localIPs.forEach(ip => {
+                        const opt = document.createElement('option');
+                        opt.value = `local|${ip}`; opt.innerText = `🔌 ${app.localConnections[ip].model} (${ip})`;
+                        grp.appendChild(opt);
+                    });
+                    sel.appendChild(grp);
+                }
+                if(app.cloudDevices.length > 0) {
+                    const grp = document.createElement('optgroup'); grp.label = "Cloud Devices";
+                    app.cloudDevices.forEach(d => {
+                        const opt = document.createElement('option');
+                        opt.value = `cloud|${d.id}`; opt.innerText = `☁️ ${d.name} (${d.number})`;
+                        grp.appendChild(opt);
+                    });
+                    sel.appendChild(grp);
+                }
+                if(oldVal) sel.value = oldVal;
+                
+                sel.onchange = () => {
+                    const ind = document.getElementById('device-status-indicator');
+                    if(sel.value.startsWith('local')) { ind.className='px-3 py-1 bg-green-100 text-green-700 rounded-full text-xs font-bold'; ind.innerText='WiFi Mode'; }
+                    else if(sel.value.startsWith('cloud')) { ind.className='px-3 py-1 bg-purple-100 text-purple-700 rounded-full text-xs font-bold'; ind.innerText='Cloud Mode'; }
+                    else { ind.className='px-3 py-1 bg-gray-100 text-gray-400 rounded-full text-xs font-bold'; ind.innerText='Pilih Device'; }
+                }
+            },
+
+            sendBroadcast: async () => {
+                const dev = document.getElementById('select-active-device').value;
+                if(!dev) return app.toast('Pilih device dulu!', 'error');
+                const [type, id] = dev.split('|');
+                
+                const msgTemp = document.getElementById('inp-message').value;
+                if(!msgTemp) return app.toast('Pesan kosong', 'error');
+
+                let queue = [];
+                if(app.inputMode === 'manual') {
+                    queue = document.getElementById('inp-manual-numbers').value.split('\n').filter(n=>n.length>5).map(n=>({to:n.trim(), text:msgTemp}));
+                } else {
+                    if(app.excelData.length===0) return app.toast('Excel kosong', 'error');
+                    const col = document.getElementById('excel-col-phone').value;
+                    queue = app.excelData.map(r=>{
+                        let t = msgTemp; app.excelHeaders.forEach((h,i)=>t=t.replaceAll(`<<<${h}>>>`, r[i]||''));
+                        return {to:r[col], text:t};
+                    });
+                }
+
+                if(queue.length===0) return app.toast('Tidak ada nomor valid', 'error');
+                const btn = document.getElementById('btn-send');
+                btn.disabled=true;
+                
+                const urlRaw = document.getElementById('cfg-url').value;
+                const key = document.getElementById('cfg-key').value;
+                const useProxy = document.getElementById('cfg-proxy').checked;
+                const baseUrl = useProxy ? `https://corsproxy.io/?${encodeURIComponent(urlRaw)}` : urlRaw;
+
+                for(let i=0; i<queue.length; i++) {
+                    const item = queue[i];
+                    btn.innerText = `Sending ${i+1}/${queue.length}`;
+                    let st = 'failed';
+
+                    if(type==='local') {
+                        if(app.localConnections[id]?.ws.readyState===1) {
+                            app.localConnections[id].ws.send(JSON.stringify({command:"send", data:{uid:Date.now(), recipient:item.to, text:item.text}}));
+                            st='sent';
+                        }
+                    } else {
+                        try {
+                            await axios.post(`${baseUrl}/api/send`, {device_id:id, number:item.to, message:item.text}, {headers:{'Authorization':`Bearer ${key}`}});
+                            st='sent';
+                        } catch(e){ console.error(e); }
+                    }
+                    await db.history.add({date:Date.now(), to:item.to, message:item.text, device:id, status:st});
+                    await new Promise(r=>setTimeout(r, 1000));
+                }
+                btn.disabled=false; btn.innerHTML='<i class="fas fa-paper-plane"></i> Kirim Pesan';
+                app.toast('Selesai!', 'success'); app.loadHistory();
+            },
+
+            // UTILS
+            setInputMode: (m) => {
+                app.inputMode = m;
+                document.getElementById('tab-manual').className = m==='manual'?'cursor-pointer bg-white p-4 rounded-xl border-2 border-brand-500 shadow-sm transition-all':'cursor-pointer bg-white p-4 rounded-xl border-2 border-transparent hover:border-gray-200 shadow-sm transition-all';
+                document.getElementById('tab-excel').className = m==='excel'?'cursor-pointer bg-white p-4 rounded-xl border-2 border-green-500 shadow-sm transition-all':'cursor-pointer bg-white p-4 rounded-xl border-2 border-transparent hover:border-gray-200 shadow-sm transition-all';
+                document.getElementById('area-manual').className = m==='manual'?'':'hidden';
+                document.getElementById('area-excel').className = m==='excel'?'':'hidden';
+            },
+            handleExcel: (inp) => {
+                const f = inp.files[0]; if(!f) return;
+                document.getElementById('excel-name').innerText = f.name;
+                const r = new FileReader();
+                r.onload = e => {
+                    const wb = XLSX.read(new Uint8Array(e.target.result), {type:'array'});
+                    const j = XLSX.utils.sheet_to_json(wb.Sheets[wb.SheetNames[0]], {header:1});
+                    if(j.length>0) { app.excelHeaders=j[0]; app.excelData=j.slice(1); app.renderExcelTools(); }
+                }; r.readAsArrayBuffer(f);
+            },
+            renderExcelTools: () => {
+                document.getElementById('excel-vars').classList.remove('hidden');
+                const sel = document.getElementById('excel-col-phone'); sel.innerHTML='';
+                app.excelHeaders.forEach((h,i)=>{ const o=document.createElement('option'); o.value=i; o.innerText=h; if(['hp','no','phone'].includes(h.toLowerCase())) o.selected=true; sel.appendChild(o); });
+                const ch = document.getElementById('excel-chips'); ch.innerHTML='';
+                app.excelHeaders.forEach(h=>{ const s=document.createElement('span'); s.className='var-chip px-2 py-1 bg-white border rounded text-xs hover:border-brand-500'; s.innerText=`<<<${h}>>>`; s.onclick=()=>{document.getElementById('inp-message').value+=` <<<${h}>>>`}; ch.appendChild(s); });
+            },
+            setupListeners: () => { document.getElementById('inp-message').addEventListener('input', e => document.getElementById('char-count').innerText=`${e.target.value.length} Karakter`); },
+            loadHistory: async () => {
+                const l = await db.history.reverse().limit(20).toArray();
+                const tb = document.getElementById('history-list'); tb.innerHTML='';
+                l.forEach(i=>{ tb.innerHTML+=`<tr class="border-b hover:bg-gray-50"><td class="px-6 py-4 text-xs text-gray-500">${new Date(i.date).toLocaleTimeString()}</td><td class="px-6 py-4 text-xs font-mono">${i.to}</td><td class="px-6 py-4 text-xs truncate max-w-xs">${i.message}</td><td class="px-6 py-4 text-xs text-gray-400">${i.device}</td><td class="px-6 py-4">${i.status==='sent'?'<span class="bg-green-100 text-green-700 px-2 py-0.5 rounded text-xs font-bold">SENT</span>':'<span class="bg-red-100 text-red-700 px-2 py-0.5 rounded text-xs font-bold">FAIL</span>'}</td></tr>`; });
+            },
+            toast: (msg, type='info') => {
+                const t = document.getElementById('toast'); document.getElementById('toast-msg').innerText=msg;
+                const i = document.getElementById('toast-icon'); i.className = type==='success'?'fas fa-check-circle text-green-400':type==='error'?'fas fa-exclamation-triangle text-red-400':'fas fa-info-circle text-blue-400';
+                t.classList.remove('translate-y-24', 'opacity-0'); setTimeout(()=>t.classList.add('translate-y-24', 'opacity-0'), 3000);
+            }
+        };
+        document.addEventListener('DOMContentLoaded', app.init);
+    </script>
+</body>
+</html>

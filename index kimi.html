@@ -1,0 +1,565 @@
+<!DOCTYPE html>
+<html lang="id" class="light">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <meta http-equiv="Content-Security-Policy" content="default-src 'self'; script-src 'self' 'unsafe-inline' 'unsafe-eval' https://cdn.tailwindcss.com https://unpkg.com; style-src 'self' 'unsafe-inline' https://fonts.googleapis.com https://cdnjs.cloudflare.com; font-src 'self' https://fonts.gstatic.com https://cdnjs.cloudflare.com; img-src 'self' data: https: http:; connect-src 'self' http://localhost:* https:; frame-src 'self' https: http:;">
+  <title>TemenBoss - Operating System for Business</title>
+  
+  <!-- Tailwind CSS -->
+  <script src="https://cdn.tailwindcss.com"></script>
+  
+  <!-- Dexie.js for IndexedDB -->
+  <script src="https://unpkg.com/dexie@3.2.4/dist/dexie.js"></script>
+  
+  <!-- Font Awesome -->
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css">
+  
+  <!-- Google Fonts -->
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+  
+  <script>
+    tailwind.config = {
+      darkMode: 'class',
+      theme: {
+        extend: {
+          fontFamily: {
+            sans: ['Inter', 'sans-serif'],
+          },
+          colors: {
+            primary: {
+              50: '#eff6ff',
+              100: '#dbeafe',
+              200: '#bfdbfe',
+              300: '#93c5fd',
+              400: '#60a5fa',
+              500: '#3b82f6',
+              600: '#2563eb',
+              700: '#1d4ed8',
+              800: '#1e40af',
+              900: '#1e3a8a',
+            },
+            sidebar: {
+              light: '#ffffff',
+              dark: '#1e293b',
+            }
+          }
+        }
+      }
+    }
+  </script>
+  
+  <style>
+    /* Custom Scrollbar */
+    ::-webkit-scrollbar {
+      width: 6px;
+      height: 6px;
+    }
+    ::-webkit-scrollbar-track {
+      background: transparent;
+    }
+    ::-webkit-scrollbar-thumb {
+      background: #cbd5e1;
+      border-radius: 3px;
+    }
+    .dark ::-webkit-scrollbar-thumb {
+      background: #475569;
+    }
+    ::-webkit-scrollbar-thumb:hover {
+      background: #94a3b8;
+    }
+    
+    /* Sidebar Transitions */
+    .sidebar-transition {
+      transition: width 0.3s cubic-bezier(0.4, 0, 0.2, 1), transform 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+    }
+    
+    /* Webview Container */
+    .webview-container {
+      position: relative;
+      width: 100%;
+      height: 100%;
+    }
+    
+    webview {
+      width: 100%;
+      height: calc(100% - 48px);
+      border: none;
+    }
+    
+    /* Animations */
+    @keyframes fadeIn {
+      from { opacity: 0; transform: translateY(-10px); }
+      to { opacity: 1; transform: translateY(0); }
+    }
+    
+    @keyframes slideIn {
+      from { transform: translateX(-100%); }
+      to { transform: translateX(0); }
+    }
+    
+    @keyframes pulse-ring {
+      0% { transform: scale(0.8); opacity: 0.5; }
+      100% { transform: scale(1.3); opacity: 0; }
+    }
+    
+    .animate-fade-in {
+      animation: fadeIn 0.3s ease-out;
+    }
+    
+    .animate-slide-in {
+      animation: slideIn 0.3s ease-out;
+    }
+    
+    .notification-dot::after {
+      content: '';
+      position: absolute;
+      top: 0;
+      right: 0;
+      width: 8px;
+      height: 8px;
+      background: #ef4444;
+      border-radius: 50%;
+      animation: pulse-ring 2s cubic-bezier(0.215, 0.61, 0.355, 1) infinite;
+    }
+    
+    /* Tooltip */
+    .tooltip {
+      position: relative;
+    }
+    .tooltip::after {
+      content: attr(data-tooltip);
+      position: absolute;
+      left: 100%;
+      top: 50%;
+      transform: translateY(-50%);
+      margin-left: 8px;
+      padding: 4px 8px;
+      background: #1e293b;
+      color: white;
+      font-size: 12px;
+      border-radius: 4px;
+      white-space: nowrap;
+      opacity: 0;
+      visibility: hidden;
+      transition: opacity 0.2s, visibility 0.2s;
+      z-index: 1000;
+    }
+    .tooltip:hover::after {
+      opacity: 1;
+      visibility: visible;
+    }
+    
+    /* Loading Spinner */
+    .spinner {
+      border: 3px solid #e2e8f0;
+      border-top: 3px solid #3b82f6;
+      border-radius: 50%;
+      width: 24px;
+      height: 24px;
+      animation: spin 1s linear infinite;
+    }
+    
+    @keyframes spin {
+      0% { transform: rotate(0deg); }
+      100% { transform: rotate(360deg); }
+    }
+    
+    /* Glass Effect */
+    .glass {
+      background: rgba(255, 255, 255, 0.8);
+      backdrop-filter: blur(10px);
+    }
+    
+    .dark .glass {
+      background: rgba(30, 41, 59, 0.8);
+    }
+    
+    /* Content Area */
+    .content-area {
+      transition: margin-left 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+    }
+    
+    /* Menu Item Hover */
+    .menu-item {
+      position: relative;
+      overflow: hidden;
+    }
+    .menu-item::before {
+      content: '';
+      position: absolute;
+      left: 0;
+      top: 0;
+      bottom: 0;
+      width: 3px;
+      background: #3b82f6;
+      transform: scaleY(0);
+      transition: transform 0.2s;
+    }
+    .menu-item:hover::before,
+    .menu-item.active::before {
+      transform: scaleY(1);
+    }
+    
+    /* Tab Styles */
+    .tab-btn {
+      position: relative;
+      transition: all 0.2s;
+    }
+    .tab-btn.active::after {
+      content: '';
+      position: absolute;
+      bottom: -1px;
+      left: 0;
+      right: 0;
+      height: 2px;
+      background: #3b82f6;
+    }
+    
+    /* Card Hover */
+    .card-hover {
+      transition: transform 0.2s, box-shadow 0.2s;
+    }
+    .card-hover:hover {
+      transform: translateY(-2px);
+      box-shadow: 0 10px 25px -5px rgba(0, 0, 0, 0.1), 0 8px 10px -6px rgba(0, 0, 0, 0.1);
+    }
+    
+    /* Toggle Switch */
+    .toggle-switch {
+      position: relative;
+      width: 44px;
+      height: 24px;
+    }
+    .toggle-switch input {
+      opacity: 0;
+      width: 0;
+      height: 0;
+    }
+    .toggle-slider {
+      position: absolute;
+      cursor: pointer;
+      top: 0;
+      left: 0;
+      right: 0;
+      bottom: 0;
+      background-color: #cbd5e1;
+      transition: 0.3s;
+      border-radius: 24px;
+    }
+    .toggle-slider::before {
+      position: absolute;
+      content: "";
+      height: 18px;
+      width: 18px;
+      left: 3px;
+      bottom: 3px;
+      background-color: white;
+      transition: 0.3s;
+      border-radius: 50%;
+    }
+    input:checked + .toggle-slider {
+      background-color: #3b82f6;
+    }
+    input:checked + .toggle-slider::before {
+      transform: translateX(20px);
+    }
+  </style>
+</head>
+<body class="bg-gray-50 dark:bg-gray-900 text-gray-900 dark:text-gray-100 font-sans antialiased overflow-hidden">
+  
+  <!-- ==================== MAIN CONTAINER ==================== -->
+  <div id="app" class="flex h-screen w-screen">
+    
+    <!-- ==================== SIDEBAR ==================== -->
+    <aside id="sidebar" class="sidebar-transition fixed left-0 top-0 h-full bg-white dark:bg-gray-800 border-r border-gray-200 dark:border-gray-700 z-40 flex flex-col shadow-lg" data-state="expanded">
+      
+      <!-- Sidebar Header / Logo -->
+      <div class="h-16 flex items-center justify-between px-4 border-b border-gray-200 dark:border-gray-700">
+        <div id="logo-full" class="flex items-center gap-3">
+          <div class="w-10 h-10 bg-gradient-to-br from-primary-500 to-primary-700 rounded-xl flex items-center justify-center shadow-lg">
+            <i class="fas fa-cube text-white text-lg"></i>
+          </div>
+          <div class="sidebar-text">
+            <h1 class="font-bold text-lg leading-tight">TemenBoss</h1>
+            <p class="text-xs text-gray-500 dark:text-gray-400">Business OS</p>
+          </div>
+        </div>
+        <div id="logo-icon-only" class="hidden w-10 h-10 bg-gradient-to-br from-primary-500 to-primary-700 rounded-xl flex items-center justify-center shadow-lg mx-auto">
+          <i class="fas fa-cube text-white text-lg"></i>
+        </div>
+      </div>
+      
+      <!-- Sidebar Navigation -->
+      <nav class="flex-1 overflow-y-auto py-4 px-2 space-y-1">
+        
+        <!-- Dashboard -->
+        <button onclick="app.navigateTo('dashboard')" id="nav-dashboard" class="menu-item active w-full flex items-center gap-3 px-3 py-3 rounded-lg text-sm font-medium text-gray-700 dark:text-gray-300 hover:bg-gray-100 dark:hover:bg-gray-700 transition-colors">
+          <i class="fas fa-home w-5 text-center"></i>
+          <span class="sidebar-text">Dashboard</span>
+        </button>
+        
+        <!-- Divider -->
+        <div class="sidebar-text my-2 px-3">
+          <span class="text-xs font-semibold text-gray-400 uppercase tracking-wider">Add-ons</span>
+        </div>
+        <div class="hidden icon-only-divider my-2 border-t border-gray-200 dark:border-gray-700"></div>
+        
+        <!-- Addon List Container -->
+        <div id="addon-list" class="space-y-1">
+          <!-- Dynamically populated -->
+        </div>
+        
+        <!-- Divider -->
+        <div class="sidebar-text my-2 px-3">
+          <span class="text-xs font-semibold text-gray-400 uppercase tracking-wider">Web Instances</span>
+        </div>
+        <div class="hidden icon-only-divider my-2 border-t border-gray-200 dark:border-gray-700"></div>
+        
+        <!-- Web Instance List -->
+        <div id="webinstance-list" class="space-y-1">
+          <!-- Dynamically populated -->
+        </div>
+        
+        <!-- Add Web Instance Button -->
+        <button onclick="app.showAddWebInstanceModal()" class="w-full flex items-center gap-3 px-3 py-2 rounded-lg text-sm font-medium text-primary-600 dark:text-primary-400 hover:bg-primary-50 dark:hover:bg-primary-900/20 transition-colors mt-2">
+          <i class="fas fa-plus-circle w-5 text-center"></i>
+          <span class="sidebar-text">Tambah Website</span>
+        </button>
+        
+        <!-- Divider -->
+        <div class="sidebar-text my-2 px-3">
+          <span class="text-xs font-semibold text-gray-400 uppercase tracking-wider">Sistem</span>
+        </div>
+        <div class="hidden icon-only-divider my-2 border-t border-gray-200 dark:border-gray-700"></div>
+        
+        <!-- Settings -->
+        <button onclick="app.navigateTo('settings')" id="nav-settings" class="menu-item w-full flex items-center gap-3 px-3 py-3 rounded-lg text-sm font-medium text-gray-700 dark:text-gray-300 hover:bg-gray-100 dark:hover:bg-gray-700 transition-colors">
+          <i class="fas fa-cog w-5 text-center"></i>
+          <span class="sidebar-text">Pengaturan</span>
+        </button>
+        
+      </nav>
+      
+      <!-- Sidebar Footer -->
+      <div class="p-4 border-t border-gray-200 dark:border-gray-700">
+        <div class="sidebar-text text-center">
+          <p class="text-xs text-gray-400">Powered by</p>
+          <p class="text-xs font-medium text-primary-600 dark:text-primary-400">TemenBoss.com</p>
+        </div>
+        <div class="hidden icon-only-footer flex justify-center">
+          <i class="fas fa-bolt text-primary-500 text-lg"></i>
+        </div>
+      </div>
+      
+    </aside>
+    
+    <!-- ==================== MAIN CONTENT AREA ==================== -->
+    <div id="main-area" class="content-area flex-1 flex flex-col h-full ml-64">
+      
+      <!-- ==================== TOP HEADER ==================== -->
+      <header class="h-16 bg-white/80 dark:bg-gray-800/80 backdrop-blur-md border-b border-gray-200 dark:border-gray-700 flex items-center justify-between px-4 sticky top-0 z-30">
+        
+        <!-- Left: Toggle Sidebar & Breadcrumb -->
+        <div class="flex items-center gap-4">
+          <button onclick="app.toggleSidebar()" class="w-10 h-10 rounded-lg hover:bg-gray-100 dark:hover:bg-gray-700 flex items-center justify-center transition-colors" title="Toggle Sidebar">
+            <i id="sidebar-toggle-icon" class="fas fa-bars text-gray-600 dark:text-gray-400"></i>
+          </button>
+          
+          <nav id="breadcrumb" class="hidden md:flex items-center gap-2 text-sm">
+            <span class="text-gray-500 dark:text-gray-400">TemenBoss</span>
+            <i class="fas fa-chevron-right text-xs text-gray-400"></i>
+            <span id="breadcrumb-current" class="font-medium text-gray-900 dark:text-gray-100">Dashboard</span>
+          </nav>
+        </div>
+        
+        <!-- Center: Webview Navigation (Hidden by default) -->
+        <div id="webview-nav" class="hidden flex-1 max-w-2xl mx-4 flex items-center gap-2">
+          <button onclick="app.webviewBack()" class="w-8 h-8 rounded-lg hover:bg-gray-100 dark:hover:bg-gray-700 flex items-center justify-center" title="Back">
+            <i class="fas fa-arrow-left text-sm"></i>
+          </button>
+          <button onclick="app.webviewForward()" class="w-8 h-8 rounded-lg hover:bg-gray-100 dark:hover:bg-gray-700 flex items-center justify-center" title="Forward">
+            <i class="fas fa-arrow-right text-sm"></i>
+          </button>
+          <button onclick="app.webviewRefresh()" class="w-8 h-8 rounded-lg hover:bg-gray-100 dark:hover:bg-gray-700 flex items-center justify-center" title="Refresh">
+            <i class="fas fa-redo-alt text-sm"></i>
+          </button>
+          <div class="flex-1 flex items-center gap-2 px-3 py-1.5 bg-gray-100 dark:bg-gray-700 rounded-lg text-sm">
+            <i class="fas fa-lock text-green-500 text-xs"></i>
+            <span id="webview-url" class="truncate text-gray-600 dark:text-gray-300">https://web.whatsapp.com</span>
+          </div>
+        </div>
+        
+        <!-- Right: Actions -->
+        <div class="flex items-center gap-2">
+          
+          <!-- Fullscreen -->
+          <button onclick="app.toggleFullscreen()" class="w-10 h-10 rounded-lg hover:bg-gray-100 dark:hover:bg-gray-700 flex items-center justify-center transition-colors" title="Fullscreen">
+            <i class="fas fa-expand text-gray-600 dark:text-gray-400"></i>
+          </button>
+          
+          <!-- Dark Mode Toggle -->
+          <button onclick="app.toggleTheme()" class="w-10 h-10 rounded-lg hover:bg-gray-100 dark:hover:bg-gray-700 flex items-center justify-center transition-colors" title="Toggle Theme">
+            <i id="theme-icon" class="fas fa-sun text-gray-600 dark:text-gray-400"></i>
+          </button>
+          
+          <!-- Notifications -->
+          <div class="relative">
+            <button onclick="app.toggleNotifications()" class="w-10 h-10 rounded-lg hover:bg-gray-100 dark:hover:bg-gray-700 flex items-center justify-center transition-colors relative" title="Notifications">
+              <i class="fas fa-bell text-gray-600 dark:text-gray-400"></i>
+              <span id="notif-badge" class="absolute top-1 right-1 w-2.5 h-2.5 bg-red-500 rounded-full hidden"></span>
+            </button>
+            
+            <!-- Notification Dropdown -->
+            <div id="notif-dropdown" class="hidden absolute right-0 top-full mt-2 w-80 bg-white dark:bg-gray-800 rounded-xl shadow-xl border border-gray-200 dark:border-gray-700 z-50 animate-fade-in">
+              <div class="p-4 border-b border-gray-200 dark:border-gray-700 flex items-center justify-between">
+                <h3 class="font-semibold">Notifikasi</h3>
+                <button onclick="app.clearNotifications()" class="text-xs text-primary-600 hover:underline">Hapus Semua</button>
+              </div>
+              <div id="notif-list" class="max-h-64 overflow-y-auto">
+                <div class="p-4 text-center text-gray-500 text-sm">Tidak ada notifikasi</div>
+              </div>
+            </div>
+          </div>
+          
+          <!-- User Menu -->
+          <div class="relative ml-2">
+            <button onclick="app.toggleUserMenu()" class="flex items-center gap-2 px-2 py-1.5 rounded-lg hover:bg-gray-100 dark:hover:bg-gray-700 transition-colors">
+              <img id="user-avatar" src="https://ui-avatars.com/api/?name=Admin&background=3b82f6&color=fff" alt="User" class="w-8 h-8 rounded-full">
+              <div class="hidden md:block text-left">
+                <p id="user-name" class="text-sm font-medium leading-tight">Administrator</p>
+                <p id="user-role" class="text-xs text-gray-500 dark:text-gray-400">Super Admin</p>
+              </div>
+              <i class="fas fa-chevron-down text-xs text-gray-400"></i>
+            </button>
+            
+            <!-- User Dropdown -->
+            <div id="user-dropdown" class="hidden absolute right-0 top-full mt-2 w-56 bg-white dark:bg-gray-800 rounded-xl shadow-xl border border-gray-200 dark:border-gray-700 z-50 animate-fade-in">
+              <div class="p-4 border-b border-gray-200 dark:border-gray-700">
+                <p id="dropdown-user-name" class="font-medium">Administrator</p>
+                <p id="dropdown-user-email" class="text-sm text-gray-500 dark:text-gray-400">admin@temenboss.com</p>
+              </div>
+              <div class="p-2">
+                <button onclick="app.navigateTo('settings')" class="w-full flex items-center gap-3 px-3 py-2 rounded-lg text-sm text-gray-700 dark:text-gray-300 hover:bg-gray-100 dark:hover:bg-gray-700">
+                  <i class="fas fa-user-cog w-5"></i>
+                  Profil & Pengaturan
+                </button>
+                <button onclick="app.logout()" class="w-full flex items-center gap-3 px-3 py-2 rounded-lg text-sm text-red-600 hover:bg-red-50 dark:hover:bg-red-900/20">
+                  <i class="fas fa-sign-out-alt w-5"></i>
+                  Keluar
+                </button>
+              </div>
+            </div>
+          </div>
+          
+        </div>
+      </header>
+      
+      <!-- ==================== MAIN VIEWPORT ==================== -->
+      <main id="viewport" class="flex-1 overflow-hidden relative bg-gray-50 dark:bg-gray-900">
+        
+        <!-- Dashboard View -->
+        <div id="view-dashboard" class="view-section w-full h-full overflow-auto p-6">
+          <iframe src="dashboard.html" class="w-full h-full border-0 rounded-xl" sandbox="allow-scripts allow-same-origin allow-forms allow-popups"></iframe>
+        </div>
+        
+        <!-- Settings View -->
+        <div id="view-settings" class="view-section hidden w-full h-full overflow-auto">
+          <!-- Settings content will be loaded here -->
+        </div>
+        
+        <!-- Addon View Container -->
+        <div id="view-addon" class="view-section hidden w-full h-full overflow-auto">
+          <iframe id="addon-iframe" class="w-full h-full border-0" sandbox="allow-scripts allow-same-origin allow-forms allow-popups allow-modals"></iframe>
+        </div>
+        
+        <!-- Webview Container -->
+        <div id="view-webview" class="view-section hidden w-full h-full">
+          <div class="webview-container">
+            <!-- Webview Mini Navbar -->
+            <div class="h-12 bg-white dark:bg-gray-800 border-b border-gray-200 dark:border-gray-700 flex items-center px-4 gap-2">
+              <button onclick="app.webviewBack()" class="w-8 h-8 rounded hover:bg-gray-100 dark:hover:bg-gray-700 flex items-center justify-center">
+                <i class="fas fa-arrow-left text-sm"></i>
+              </button>
+              <button onclick="app.webviewForward()" class="w-8 h-8 rounded hover:bg-gray-100 dark:hover:bg-gray-700 flex items-center justify-center">
+                <i class="fas fa-arrow-right text-sm"></i>
+              </button>
+              <button onclick="app.webviewRefresh()" class="w-8 h-8 rounded hover:bg-gray-100 dark:hover:bg-gray-700 flex items-center justify-center">
+                <i class="fas fa-redo-alt text-sm"></i>
+              </button>
+              <div class="flex-1 flex items-center gap-2 px-3 py-1 bg-gray-100 dark:bg-gray-700 rounded text-sm mx-2">
+                <i class="fas fa-lock text-green-500 text-xs"></i>
+                <span id="mini-webview-url" class="truncate text-gray-600 dark:text-gray-300">-</span>
+              </div>
+              <button onclick="app.closeWebview()" class="w-8 h-8 rounded hover:bg-red-100 dark:hover:bg-red-900/20 flex items-center justify-center text-red-500">
+                <i class="fas fa-times text-sm"></i>
+              </button>
+            </div>
+            <!-- Webview Element -->
+            <webview id="active-webview" src="about:blank" partition="" preload="./bridge.js"></webview>
+          </div>
+        </div>
+        
+      </main>
+      
+    </div>
+    
+  </div>
+  
+  <!-- ==================== MODALS ==================== -->
+  
+  <!-- Add Web Instance Modal -->
+  <div id="modal-add-webinstance" class="hidden fixed inset-0 bg-black/50 backdrop-blur-sm z-50 flex items-center justify-center">
+    <div class="bg-white dark:bg-gray-800 rounded-2xl shadow-2xl w-full max-w-md mx-4 animate-fade-in">
+      <div class="p-6 border-b border-gray-200 dark:border-gray-700 flex items-center justify-between">
+        <h3 class="text-lg font-semibold">Tambah Web Instance</h3>
+        <button onclick="app.closeModal('modal-add-webinstance')" class="w-8 h-8 rounded-lg hover:bg-gray-100 dark:hover:bg-gray-700 flex items-center justify-center">
+          <i class="fas fa-times"></i>
+        </button>
+      </div>
+      <div class="p-6 space-y-4">
+        <div>
+          <label class="block text-sm font-medium mb-1">Nama Instance</label>
+          <input type="text" id="wi-name" placeholder="Contoh: WhatsApp Bisnis 1" class="w-full px-4 py-2 rounded-lg border border-gray-300 dark:border-gray-600 bg-white dark:bg-gray-700 focus:ring-2 focus:ring-primary-500 focus:border-transparent outline-none transition-all">
+        </div>
+        <div>
+          <label class="block text-sm font-medium mb-1">URL Website</label>
+          <input type="url" id="wi-url" placeholder="https://web.whatsapp.com" class="w-full px-4 py-2 rounded-lg border border-gray-300 dark:border-gray-600 bg-white dark:bg-gray-700 focus:ring-2 focus:ring-primary-500 focus:border-transparent outline-none transition-all">
+        </div>
+        <div>
+          <label class="block text-sm font-medium mb-1">Icon (opsional)</label>
+          <select id="wi-icon" class="w-full px-4 py-2 rounded-lg border border-gray-300 dark:border-gray-600 bg-white dark:bg-gray-700 focus:ring-2 focus:ring-primary-500 focus:border-transparent outline-none transition-all">
+            <option value="fas fa-globe">🌐 Website</option>
+            <option value="fab fa-whatsapp">💬 WhatsApp</option>
+            <option value="fab fa-facebook">📘 Facebook</option>
+            <option value="fab fa-instagram">📷 Instagram</option>
+            <option value="fab fa-twitter">🐦 Twitter</option>
+            <option value="fab fa-youtube">📺 YouTube</option>
+            <option value="fas fa-envelope">📧 Email</option>
+            <option value="fas fa-shopping-cart">🛒 E-Commerce</option>
+          </select>
+        </div>
+      </div>
+      <div class="p-6 border-t border-gray-200 dark:border-gray-700 flex justify-end gap-3">
+        <button onclick="app.closeModal('modal-add-webinstance')" class="px-4 py-2 rounded-lg text-gray-600 dark:text-gray-400 hover:bg-gray-100 dark:hover:bg-gray-700 transition-colors">Batal</button>
+        <button onclick="app.saveWebInstance()" class="px-4 py-2 rounded-lg bg-primary-600 hover:bg-primary-700 text-white transition-colors">Simpan</button>
+      </div>
+    </div>
+  </div>
+  
+  <!-- Toast Notifications -->
+  <div id="toast-container" class="fixed bottom-4 right-4 z-50 space-y-2"></div>
+  
+  <!-- Loading Overlay -->
+  <div id="loading-overlay" class="hidden fixed inset-0 bg-black/20 backdrop-blur-sm z-50 flex items-center justify-center">
+    <div class="bg-white dark:bg-gray-800 rounded-xl shadow-xl p-6 flex items-center gap-4">
+      <div class="spinner"></div>
+      <span class="text-gray-700 dark:text-gray-300">Memuat...</span>
+    </div>
+  </div>
+  
+  <!-- ==================== SCRIPTS ==================== -->
+  <script src="app.js"></script>
+  
+</body>
+</html>
